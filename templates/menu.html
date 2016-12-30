@@ -1,0 +1,26 @@
+<html>
+<body>
+
+<h1><center>{{restaurant.name}}</center></h1>
+
+{% for i in items %}
+
+<div>
+<p>{{i.name}}
+<br>
+{{i.price}}
+<br>
+{{i.description}}</p>
+</div>
+
+<!-- {{i.name}}
+</br>
+{{i.price}}
+</br>
+{{i.description}}
+<br> -->
+
+{% endfor %}
+</body>
+
+</html>
