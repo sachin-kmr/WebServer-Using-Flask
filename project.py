@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, redirect
+from flask import Flask, render_template, url_for, request, redirect, flash
 app = Flask(__name__)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -26,16 +26,22 @@ def restaurantMenu(restaurant_id):
 	# return output
 	return render_template('menu.html', restaurant=restaurant, items=items) #object
 
+
+
+
 @app.route('/restaurants/<int:restaurant_id>/new', methods=['GET', 'POST'])
 def newMenuItem(restaurant_id):
 	if request.method == 'POST':
 		newItem = MenuItem(name = request.form['name'], restaurant_id=restaurant_id) #variable
 		session.add(newItem)
 		session.commit()
+		flash("New Menu Item Created!!")
 		return redirect(url_for('restaurantMenu', restaurant_id=restaurant_id))
 	else:
 		return render_template('newMenuItem.html', restaurant_id=restaurant_id)
 	
+
+
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit', methods=['GET', 'POST'])
 def editMenuItem(restaurant_id, menu_id):
 	item = session.query(MenuItem).filter_by(id=menu_id).one()
@@ -45,9 +51,12 @@ def editMenuItem(restaurant_id, menu_id):
 			item.name = temp
 			session.add(item)
 			session.commit()
+			flash("Menu Item has been edited!!")
 		return redirect(url_for('restaurantMenu', restaurant_id=restaurant_id))
 	else:
 		return render_template('editMenuItem.html', restaurant_id=restaurant_id, menu_id=menu_id, item=item)
+
+
 
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete', methods=['GET', 'POST'])
 def deleteMenuItem(restaurant_id, menu_id):
@@ -63,10 +72,14 @@ def deleteMenuItem(restaurant_id, menu_id):
 		if len(name) == 1:
 			session.delete(item)
 			session.commit()
+			flash("Menu Item has been deleted!!")
 		return redirect(url_for('restaurantMenu', restaurant_id=restaurant_id))
 	else:
 		return render_template('deleteMenuItem.html', restaurant_id=restaurant_id, menu_id=menu_id, item=item)
 
+
+
 if __name__ == '__main__':
+	app.secret_key = 'mai_nahi_batata'
 	app.debug = True
 	app.run(host='localhost', port=8080)
