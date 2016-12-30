@@ -51,7 +51,21 @@ def editMenuItem(restaurant_id, menu_id):
 
 @app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete', methods=['GET', 'POST'])
 def deleteMenuItem(restaurant_id, menu_id):
-	return "Page for Delete Menu Item"
+	item = session.query(MenuItem).filter_by(id=menu_id).one()
+	if request.method == 'POST':
+		
+		# name = request.form.to_dict()
+		# if name['Cancel'] == 'Cancel':
+		# 	return "ohh yess"
+
+		name = request.form.getlist('Delete')
+		# if name[0] == 'Delete':
+		if len(name) == 1:
+			session.delete(item)
+			session.commit()
+		return redirect(url_for('restaurantMenu', restaurant_id=restaurant_id))
+	else:
+		return render_template('deleteMenuItem.html', restaurant_id=restaurant_id, menu_id=menu_id, item=item)
 
 if __name__ == '__main__':
 	app.debug = True
