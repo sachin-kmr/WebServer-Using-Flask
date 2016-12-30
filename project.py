@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for, request, redirect
 app = Flask(__name__)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -24,19 +24,34 @@ def restaurantMenu(restaurant_id):
 	# 	output += i.description
 	# 	output += '</br><br>'
 	# return output
-	return render_template('menu.html', restaurant=restaurant, items=items)
+	return render_template('menu.html', restaurant=restaurant, items=items) #object
 
-@app.route('/restaurants/<int:restaurant_id>/new')
+@app.route('/restaurants/<int:restaurant_id>/new', methods=['GET', 'POST'])
 def newMenuItem(restaurant_id):
-	pass
+	if request.method == 'POST':
+		newItem = MenuItem(name = request.form['name'], restaurant_id=restaurant_id) #variable
+		session.add(newItem)
+		session.commit()
+		return redirect(url_for('restaurantMenu', restaurant_id=restaurant_id))
+	else:
+		return render_template('newMenuItem.html', restaurant_id=restaurant_id)
 	
-@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit')
-def editMenuItem(restaurant_id):
-	pass
+@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/edit', methods=['GET', 'POST'])
+def editMenuItem(restaurant_id, menu_id):
+	item = session.query(MenuItem).filter_by(id=menu_id).one()
+	if request.method == 'POST':
+		temp = request.form['edit']
+		if temp != '':
+			item.name = temp
+			session.add(item)
+			session.commit()
+		return redirect(url_for('restaurantMenu', restaurant_id=restaurant_id))
+	else:
+		return render_template('editMenuItem.html', restaurant_id=restaurant_id, menu_id=menu_id, item=item)
 
-@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete')
-def deleteMenuItem(restaurant_id):
-	pass
+@app.route('/restaurants/<int:restaurant_id>/<int:menu_id>/delete', methods=['GET', 'POST'])
+def deleteMenuItem(restaurant_id, menu_id):
+	return "Page for Delete Menu Item"
 
 if __name__ == '__main__':
 	app.debug = True
